@@ -934,23 +934,49 @@
 
 
         async function shareData() {
-            const file = new File(["Hello World!"], "test.txt", { type: "text/plain" });
+            if (patients.length === 0) {
+                showAlert('No patient data to share', 'warning');
+                return;
+            }
+        
+            const dataToShare = {
+                patients: patients,
+                deviceId: deviceId,
+                exportTime: new Date().toISOString()
+            };
+        
+            // Trick the system: Use .txt and text/plain
+            const file = new File(
+                [JSON.stringify(dataToShare, null, 2)],
+                'medsync-export.txt',                     // change extension
+                { type: 'text/plain' }                    // change MIME type
+            );
         
             try {
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                if (
+                    navigator.share &&
+                    navigator.canShare &&
+                    navigator.canShare({ files: [file] })
+                ) {
                     await navigator.share({
-                        title: "Test Share",
-                        text: "Testing Web Share API with file",
+                        title: 'MedSync Gaza Export',
+                        text: 'Patient data export from MedSync Gaza (as .txt)',
                         files: [file]
                     });
-                    alert("Success");
+        
+                    addToSyncLog('Data shared: ' + patients.length + ' patients');
+                    showAlert('Data shared successfully!', 'success');
                 } else {
-                    alert("Cannot share this file.");
+                    showAlert('Sharing not supported. Downloading instead.', 'warning');
+                    downloadJSON(dataToShare, 'medsync-export.txt');
                 }
-            } catch (e) {
-                alert("Error: " + e.message);
+            } catch (error) {
+                console.error('Share failed:', error);
+                addToSyncLog('Share failed: ' + error.message);
+                showAlert('Error sharing data: ' + error.message, 'error');
             }
         }
+
 
 
         // Export data as JSON
