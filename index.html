@@ -896,41 +896,62 @@
         }
 
         // Share data via Bluetooth (simplified for MVP)
+        // async function shareData() {
+        //     if (patients.length === 0) {
+        //         showAlert('No patient data to share', 'warning');
+        //         return;
+        //     }
+
+        //     try {
+        //         const dataToShare = {
+        //             patients: patients,
+        //             deviceId: deviceId,
+        //             exportTime: new Date().toISOString()
+        //         };
+
+        //         const file = new File([JSON.stringify(dataToShare, null, 2)], 'medsync-export.json', { type: 'application/json' });
+
+        //         // For MVP, we'll use the Web Share API if available
+        //         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        //             await navigator.share({
+        //                 title: 'MedSync Gaza Data',
+        //                 text: 'Patient data export from MedSync Gaza',
+        //                 files: [file]
+        //             });
+        //         } else {
+        //             // Fallback: download as file
+        //             downloadJSON(dataToShare, 'medsync-export.json');
+        //         }
+                
+        //         addToSyncLog('Data shared: ' + patients.length + ' patients');
+        //         showAlert('Data shared successfully!', 'success');
+                
+        //     } catch (error) {
+        //         addToSyncLog('Share failed: ' + error.message);
+        //         showAlert('Error sharing data: ' + error.message, 'error');
+        //     }
+        // }
+
+
         async function shareData() {
-            if (patients.length === 0) {
-                showAlert('No patient data to share', 'warning');
-                return;
-            }
-
+            const file = new File(["Hello World!"], "test.txt", { type: "text/plain" });
+        
             try {
-                const dataToShare = {
-                    patients: patients,
-                    deviceId: deviceId,
-                    exportTime: new Date().toISOString()
-                };
-
-                const file = new File([JSON.stringify(dataToShare, null, 2)], 'medsync-export.json', { type: 'application/json' });
-
-                // For MVP, we'll use the Web Share API if available
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
-                        title: 'MedSync Gaza Data',
-                        text: 'Patient data export from MedSync Gaza',
+                        title: "Test Share",
+                        text: "Testing Web Share API with file",
                         files: [file]
                     });
+                    alert("Success");
                 } else {
-                    // Fallback: download as file
-                    downloadJSON(dataToShare, 'medsync-export.json');
+                    alert("Cannot share this file.");
                 }
-                
-                addToSyncLog('Data shared: ' + patients.length + ' patients');
-                showAlert('Data shared successfully!', 'success');
-                
-            } catch (error) {
-                addToSyncLog('Share failed: ' + error.message);
-                showAlert('Error sharing data: ' + error.message, 'error');
+            } catch (e) {
+                alert("Error: " + e.message);
             }
         }
+
 
         // Export data as JSON
         function exportData() {
