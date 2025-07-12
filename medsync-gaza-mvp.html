@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedSync Gaza - Medical Records</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            color: #4a7c59;
+            border-bottom-color: #4a7c59;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4a7c59;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3d6b4a;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #4a7c59;
+            color: #4a7c59;
+        }
+
+        .btn-outline:hover {
+            background: #4a7c59;
+            color: white;
+        }
+
+        .btn-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .patient-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .patient-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .patient-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .patient-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .patient-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c5530;
+        }
+
+        .patient-id {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+
+        .patient-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .patient-detail {
+            font-size: 0.9em;
+        }
+
+        .patient-detail strong {
+            color: #495057;
+        }
+
+        .patient-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.9em;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #4a7c59;
+        }
+
+        .sync-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 600;
+            color: #4a7c59;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .btn-actions {
+                flex-direction: column;
+            }
+            
+            .patient-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 MedSync Gaza</h1>
+            <p>Offline Medical Records System</p>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Offline Ready</span>
+            </div>
+            <div id="patientCount">0 Patients</div>
+        </div>
+
+        <div class="main-content">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('add')">Add Patient</button>
+                <button class="nav-tab" onclick="showTab('list')">Patient List</button>
+                <button class="nav-tab" onclick="showTab('sync')">Sync Data</button>
+            </div>
+
+            <!-- Add Patient Tab -->
+            <div id="add-tab" class="tab-content active">
+                <form id="patientForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patientName">Patient Name *</label>
+                            <input type="text" id="patientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="patientAge">Age *</label>
+                            <input type="number" id="patientAge" min="0" max="120" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="patientGender">Gender</label>
+                            <select id="patientGender">
+                                <option value="">Select Gender</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="O">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="patientPhone">Phone Number</label>
+                            <input type="tel" id="patientPhone">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chiefComplaint">Chief Complaint *</label>
+                        <textarea id="chiefComplaint" placeholder="Primary symptoms or reason for visit" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="temperature">Temperature (°C)</label>
+                            <input type="number" id="temperature" step="0.1" min="30" max="45">
+                        </div>
+                        <div class="form-group">
+                            <label for="pulse">Pulse (BPM)</label>
+                            <input type="number" id="pulse" min="40" max="200">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bloodPressure">Blood Pressure</label>
+                            <input type="text" id="bloodPressure" placeholder="120/80">
+                        </div>
+                        <div class="form-group">
+                            <label for="weight">Weight (kg)</label>
+                            <input type="number" id="weight" step="0.1" min="0" max="300">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Additional Notes</label>
+                        <textarea id="notes" placeholder="Treatment notes, observations, etc."></textarea>
+                    </div>
+
+                    <div class="btn-actions">
+                        <button type="submit" class="btn btn-primary">💾 Save Patient</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearForm()">🔄 Clear Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Patient List Tab -->
+            <div id="list-tab" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPatients">0</div>
+                        <div class="stat-label">Total Patients</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayPatients">0</div>
+                        <div class="stat-label">Today's Patients</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgAge">0</div>
+                        <div class="stat-label">Average Age</div>
+                    </div>
+                </div>
+
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search patients by name, ID, or symptoms...">
+                
+                <div id="patientList" class="patient-list">
+                    <!-- Patient cards will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Sync Tab -->
+            <div id="sync-tab" class="tab-content">
+                <div class="sync-section">
+                    <div class="sync-status">
+                        <span>📱 Bluetooth Status:</span>
+                        <span id="bluetoothStatus">Not Connected</span>
+                    </div>
+                    <div class="btn-actions">
+                        <button class="btn btn-primary" onclick="scanForDevices()">🔍 Scan for Devices</button>
+                        <button class="btn btn-outline" onclick="shareData()">📤 Share Data</button>
+                    </div>
+                </div>
+
+                <div class="sync-section">
+                    <h3>📊 Data Export/Import</h3>
+                    <div class="btn-actions">
+                        <button class="btn btn-secondary" onclick="exportData()">💾 Export Data</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none" onchange="importData()">
+                        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📁 Import Data</button>
+                    </div>
+                </div>
+
+                <div id="syncLog" class="sync-section">
+                    <h3>📋 Sync Log</h3>
+                    <div id="syncLogContent">
+                        <p>No sync activities yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Patient Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Patient</h3>
+            <form id="editForm">
+                <input type="hidden" id="editPatientId">
+                <div class="form-group">
+                    <label for="editPatientName">Patient Name</label>
+                    <input type="text" id="editPatientName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editPatientAge">Age</label>
+                        <input type="number" id="editPatientAge" min="0" max="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPatientGender">Gender</label>
+                        <select id="editPatientGender">
+                            <option value="">Select Gender</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                            <option value="O">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editChiefComplaint">Chief Complaint</label>
+                    <textarea id="editChiefComplaint" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editNotes">Notes</label>
+                    <textarea id="editNotes"></textarea>
+                </div>
+                <div class="btn-actions">
+                    <button type="submit" class="btn btn-primary">💾 Update Patient</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let db;
+        let patients = [];
+        let deviceId = localStorage.getItem('deviceId') || generateDeviceId();
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDB();
+            setupEventListeners();
+            loadPatients();
+            updateStats();
+        });
+
+        // Generate unique device ID
+        function generateDeviceId() {
+            const id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('deviceId', id);
+            return id;
+        }
+
+        // Initialize IndexedDB
+        function initializeDB() {
+            const request = indexedDB.open('MedSyncDB', 1);
+            
+            request.onerror = function(event) {
+                console.error('Database error:', event.target.error);
+                showAlert('Database initialization failed', 'error');
+            };
+            
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                console.log('Database initialized successfully');
+            };
+            
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                const objectStore = db.createObjectStore('patients', { keyPath: 'id' });
+                objectStore.createIndex('name', 'name', { unique: false });
+                objectStore.createIndex('createdAt', 'createdAt', { unique: false });
+                console.log('Database schema created');
+            };
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Patient form submission
+            document.getElementById('patientForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                savePatient();
+            });
+
+            // Edit form submission
+            document.getElementById('editForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                updatePatient();
+            });
+
+            // Search functionality
+            document.getElementById('searchBox').addEventListener('input', function(e) {
+                filterPatients(e.target.value);
+            });
+
+            // Modal close on outside click
+            document.getElementById('editModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Save new patient
+        function savePatient() {
+            const patient = {
+                id: 'patient_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                name: document.getElementById('patientName').value,
+                age: parseInt(document.getElementById('patientAge').value),
+                gender: document.getElementById('patientGender').value,
+                phone: document.getElementById('patientPhone').value,
+                chiefComplaint: document.getElementById('chiefComplaint').value,
+                vitals: {
+                    temperature: parseFloat(document.getElementById('temperature').value) || null,
+                    pulse: parseInt(document.getElementById('pulse').value) || null,
+                    bloodPressure: document.getElementById('bloodPressure').value || null,
+                    weight: parseFloat(document.getElementById('weight').value) || null
+                },
+                notes: document.getElementById('notes').value,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                deviceId: deviceId
+            };
+
+            const transaction = db.transaction(['patients'], 'readwrite');
+            const objectStore = transaction.objectStore('patients');
+            const request = objectStore.add(patient);
+
+            request.onsuccess = function() {
+                showAlert('Patient saved successfully!', 'success');
+                clearForm();
+                loadPatients();
+                updateStats();
+                addToSyncLog('Patient added: ' + patient.name);
+            };
+
+            request.onerror = function() {
+                showAlert('Error saving patient', 'error');
+            };
+        }
+
+        // Load all patients
+        function loadPatients() {
+            const transaction = db.transaction(['patients'], 'readonly');
+            const objectStore = transaction.objectStore('patients');
+            const request = objectStore.getAll();
+
+            request.onsuccess = function() {
+                patients = request.result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                displayPatients(patients);
+                updatePatientCount();
+            };
+        }
+
+        // Display patients in the list
+        function displayPatients(patientList) {
+            const container = document.getElementById('patientList');
+            
+            if (patientList.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px;">No patients found. Add your first patient to get started!</p>';
+                return;
+            }
+
+            container.innerHTML = patientList.map(patient => `
+                <div class="patient-card">
+                    <div class="patient-header">
+                        <div class="patient-name">${escapeHtml(patient.name)}</div>
+                        <div class="patient-id">${patient.id.substr(-8)}</div>
+                    </div>
+                    <div class="patient-details">
+                        <div class="patient-detail">
+                            <strong>Age:</strong> ${patient.age}
+                        </div>
+                        <div class="patient-detail">
+                            <strong>Gender:</strong> ${patient.gender || 'N/A'}
+                        </div>
+                        <div class="patient-detail">
+                            <strong>Created:</strong> ${new Date(patient.createdAt).toLocaleDateString()}
+                        </div>
+                        ${patient.vitals.temperature ? `<div class="patient-detail"><strong>Temp:</strong> ${patient.vitals.temperature}°C</div>` : ''}
+                        ${patient.vitals.pulse ? `<div class="patient-detail"><strong>Pulse:</strong> ${patient.vitals.pulse} BPM</div>` : ''}
+                    </div>
+                    <div class="patient-detail" style="margin-bottom: 10px;">
+                        <strong>Chief Complaint:</strong> ${escapeHtml(patient.chiefComplaint)}
+                    </div>
+                    <div class="patient-actions">
+                        <button class="btn btn-outline btn-small" onclick="editPatient('${patient.id}')">✏️ Edit</button>
+                        <button class="btn btn-danger btn-small" onclick="deletePatient('${patient.id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter patients based on search
+        function filterPatients(searchTerm) {
+            if (!searchTerm) {
+                displayPatients(patients);
+                return;
+            }
+            
+            const filtered = patients.filter(patient => 
+                patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                patient.id.includes(searchTerm) ||
+                patient.chiefComplaint.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            displayPatients(filtered);
+        }
+
+        // Edit patient
+        function editPatient(patientId) {
+            const patient = patients.find(p => p.id === patientId);
+            if (!patient) return;
+
+            document.getElementById('editPatientId').value = patient.id;
+            document.getElementById('editPatientName').value = patient.name;
+            document.getElementById('editPatientAge').value = patient.age;
+            document.getElementById('editPatientGender').value = patient.gender;
+            document.getElementById('editChiefComplaint').value = patient.chiefComplaint;
+            document.getElementById('editNotes').value = patient.notes;
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // Update patient
+        function updatePatient() {
+            const patientId = document.getElementById('editPatientId').value;
+            const patient = patients.find(p => p.id === patientId);
+            
+            if (!patient) return;
+
+            patient.name = document.getElementById('editPatientName').value;
+            patient.age = parseInt(document.getElementById('editPatientAge').value);
+            patient.gender = document.getElementById('editPatientGender').value;
+            patient.chiefComplaint = document.getElementById('editChiefComplaint').value;
+            patient.notes = document.getElementById('editNotes').value;
+            patient.updatedAt = new Date().toISOString();
+
+            const transaction = db.transaction(['patients'], 'readwrite');
+            const objectStore = transaction.objectStore('patients');
+            const request = objectStore.put(patient);
+
+            request.onsuccess = function() {
+                showAlert('Patient updated successfully!', 'success');
+                closeModal();
+                loadPatients();
+                addToSyncLog('Patient updated: ' + patient.name);
+            };
+
+            request.onerror = function() {
+                showAlert('Error updating patient', 'error');
+            };
+        }
+
+        // Delete patient
+        function deletePatient(patientId) {
+            if (!confirm('Are you sure you want to delete this patient?')) return;
+
+            const transaction = db.transaction(['patients'], 'readwrite');
+            const objectStore = transaction.objectStore('patients');
+            const request = objectStore.delete(patientId);
+
+            request.onsuccess = function() {
+                showAlert('Patient deleted successfully!', 'success');
+                loadPatients();
+                updateStats();
+                addToSyncLog('Patient deleted: ' + patientId);
+            };
+
+            request.onerror = function() {
+                showAlert('Error deleting patient', 'error');
+            };
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('patientForm').reset();
+        }
+
+        // Show tab
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Reload data if switching to list tab
+            if (tabName === 'list') {
+                loadPatients();
+                updateStats();
+            }
+        }
+
+        // Update patient count
+        function updatePatientCount() {
+            document.getElementById('patientCount').textContent = patients.length + ' Patient' + (patients.length !== 1 ? 's' : '');
+        }
+
+        // Update statistics
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todayPatients = patients.filter(p => new Date(p.createdAt).toDateString() === today);
+            const totalAges = patients.reduce((sum, p) => sum + p.age, 0);
+            const avgAge = patients.length > 0 ? Math.round(totalAges / patients.length) : 0;
+
+            document.getElementById('totalPatients').textContent = patients.length;
+            document.getElementById('todayPatients').textContent = todayPatients.length;
+            document.getElementById('avgAge').textContent = avgAge;
+        }
+
+        // Bluetooth functionality
+        async function scanForDevices() {
+            if (!navigator.bluetooth) {
+                showAlert('Bluetooth not supported in this browser', 'error');
+                return;
+            }
+
+            try {
+                document.getElementById('bluetoothStatus').textContent = 'Scanning...';
+                
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['battery_service']
+                });
+
+                document.getElementById('bluetoothStatus').textContent = 'Connected to ' + device.name;
+                addToSyncLog('Connected to device: ' + device.name);
+                showAlert('Device connected successfully!', 'success');
+                
+            } catch (error) {
+                document.getElementById('bluetoothStatus').textContent = 'Connection failed';
+                addToSyncLog('Connection failed: ' + error.message);
+                showAlert('Bluetooth connection failed: ' + error.message, 'error');
+            }
+        }
+
+        // Share data via Bluetooth (simplified for MVP)
+        async function shareData() {
+            if (patients.length === 0) {
+                showAlert('No patient data to share', 'warning');
+                return;
+            }
+
+            try {
+                const dataToShare = {
+                    patients: patients,
+                    deviceId: deviceId,
+                    exportTime: new Date().toISOString()
+                };
+
+                const file = new File([JSON.stringify(dataToShare, null, 2)], 'medsync-export.json', { type: 'application/json' });
+
+                // For MVP, we'll use the Web Share API if available
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'MedSync Gaza Data',
+                        text: 'Patient data export from MedSync Gaza',
+                        files: [file]
+                    });
+                } else {
+                    // Fallback: download as file
+                    downloadJSON(dataToShare, 'medsync-export.json');
+                }
+                
+                addToSyncLog('Data shared: ' + patients.length + ' patients');
+                showAlert('Data shared successfully!', 'success');
+                
+            } catch (error) {
+                addToSyncLog('Share failed: ' + error.message);
+                showAlert('Error sharing data: ' + error.message, 'error');
+            }
+        }
+
+        // Export data as JSON
+        function exportData() {
+            const dataToExport = {
+                patients: patients,
+                deviceId: deviceId,
+                exportTime: new Date().toISOString(),
+                version: '1.0'
+            };
+
+            downloadJSON(dataToExport, 'medsync-export-' + new Date().toISOString().split('T')[0] + '.json');
+            addToSyncLog('Data exported: ' + patients.length + ' patients');
+            showAlert('Data exported successfully!', 'success');
+        }
+
+        // Import data from JSON
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!importedData.patients || !Array.isArray(importedData.patients)) {
+                        throw new Error('Invalid data format');
+                    }
+
+                    mergeImportedData(importedData.patients);
+                    
+                } catch (error) {
+                    showAlert('Error importing data: ' + error.message, 'error');
+                }
+            };
+
+            reader.readAsText(file);
+            fileInput.value = ''; // Clear the input
+        }
+
+        // Merge imported data with existing data
+        function mergeImportedData(importedPatients) {
+            const transaction = db.transaction(['patients'], 'readwrite');
+            const objectStore = transaction.objectStore('patients');
+            
+            let mergedCount = 0;
+            let conflictCount = 0;
+            let newCount = 0;
+
+            importedPatients.forEach(importedPatient => {
+                const existingPatient = patients.find(p => p.id === importedPatient.id);
+                
+                if (existingPatient) {
+                    // Conflict resolution: use newer timestamp
+                    if (new Date(importedPatient.updatedAt) > new Date(existingPatient.updatedAt)) {
+                        objectStore.put(importedPatient);
+                        mergedCount++;
+                        addToSyncLog('Conflict resolved: ' + importedPatient.name + ' (imported version newer)');
+                    } else {
+                        conflictCount++;
+                        addToSyncLog('Conflict ignored: ' + importedPatient.name + ' (local version newer)');
+                    }
+                } else {
+                    // New patient
+                    objectStore.put(importedPatient);
+                    newCount++;
+                }
+            });
+
+            transaction.oncomplete = function() {
+                loadPatients();
+                updateStats();
+                
+                let message = `Import complete: ${newCount} new patients, ${mergedCount} updated, ${conflictCount} conflicts resolved`;
+                showAlert(message, 'success');
+                addToSyncLog(message);
+            };
+
+            transaction.onerror = function() {
+                showAlert('Error importing data', 'error');
+            };
+        }
+
+        // Add entry to sync log
+        function addToSyncLog(message) {
+            const logContainer = document.getElementById('syncLogContent');
+            const timestamp = new Date().toLocaleString();
+            const logEntry = `<div style="padding: 5px 0; border-bottom: 1px solid #eee;">
+                <strong>${timestamp}:</strong> ${message}
+            </div>`;
+            
+            if (logContainer.innerHTML === '<p>No sync activities yet.</p>') {
+                logContainer.innerHTML = logEntry;
+            } else {
+                logContainer.innerHTML = logEntry + logContainer.innerHTML;
+            }
+        }
+
+        // Utility functions
+        function downloadJSON(data, filename) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showAlert(message, type) {
+            // Remove existing alerts
+            const existingAlert = document.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            const container = document.querySelector('.main-content');
+            container.insertBefore(alert, container.firstChild);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Register service worker for offline functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+                    const CACHE_NAME = 'medsync-gaza-v1';
+                    const urlsToCache = ['/'];
+                    
+                    self.addEventListener('install', function(event) {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(function(cache) {
+                                    return cache.addAll(urlsToCache);
+                                })
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', function(event) {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(function(response) {
+                                    if (response) {
+                                        return response;
+                                    }
+                                    return fetch(event.request);
+                                })
+                        );
+                    });
+                `)).then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                }).catch(function(error) {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
